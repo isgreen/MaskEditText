@@ -83,11 +83,13 @@ class MaskEditText : AppCompatEditText {
                 .replace(Regex("\\s+"), "")
     }
 
-    fun setText(text: String) {
-        for (i in 0 until mCurrentMask.length) {
-            if (text.length > i) {
-                val newText = super.getText().toString()
-                super.setText(String.format("%s%s", newText, text.subSequence(i, i + 1)))
+    fun setText(text: String?) {
+        text?.let {
+            for (i in 0 until mCurrentMask.length) {
+                if (it.length > i) {
+                    val newText = super.getText().toString()
+                    super.setText(String.format("%s%s", newText, text.subSequence(i, i + 1)))
+                }
             }
         }
     }
