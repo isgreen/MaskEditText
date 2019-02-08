@@ -1,12 +1,11 @@
 package br.com.isgreen.maskedittext
 
 import android.content.Context
-import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatEditText
 
 /**
  * Created by Éverdes Soares on 6/23/18.
@@ -45,11 +44,15 @@ class MaskEditText : AppCompatEditText {
         tpArray.recycle()
 
         if (mMasks.size > 0) {
-            this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(mMasks.last().length))
+            setMaxLength(mMasks.last().length)
         }
 
-        this.inputType = InputType.TYPE_CLASS_NUMBER
         this.addTextChangedListener(onTextChange)
+        this.isLongClickable = false
+    }
+
+    private fun setMaxLength(length: Int) {
+        this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(length))
     }
 
     private fun getNextMask(): String {
