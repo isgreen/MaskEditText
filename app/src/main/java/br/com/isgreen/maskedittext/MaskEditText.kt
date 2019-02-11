@@ -3,6 +3,7 @@ package br.com.isgreen.maskedittext
 import android.content.Context
 import android.text.Editable
 import android.text.InputFilter
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
@@ -13,8 +14,11 @@ import androidx.appcompat.widget.AppCompatEditText
 
 class MaskEditText : AppCompatEditText {
 
+    private var mMaxLength = 0
     private var mCurrentMask: String = ""
     private val mMasks: MutableList<String> by lazy { mutableListOf<String>() }
+
+    private var mOnTextChangedListener: OnTextChangedListener? = null
 
     constructor(context: Context) : super(context) {
         init(context, null)
@@ -52,8 +56,12 @@ class MaskEditText : AppCompatEditText {
     }
 
     private fun setMaxLength(length: Int) {
+        mMaxLength = length
         this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(length))
     }
+
+    val maxLength: Int
+        get() = mMaxLength
 
     private fun getNextMask(): String {
         mMasks.forEach {
@@ -95,6 +103,10 @@ class MaskEditText : AppCompatEditText {
                 }
             }
         }
+    }
+
+    fun setOnFillTextListener(onTextChangedListener: OnTextChangedListener) {
+        mOnTextChangedListener = onTextChangedListener
     }
 
     private val onTextChange = object : TextWatcher {
@@ -145,6 +157,9 @@ class MaskEditText : AppCompatEditText {
 
             super@MaskEditText.setText(text)
             super@MaskEditText.setSelection(text.length)
+
+            mOnTextChangedListener?.onTextChanged(
+                    !TextUtils.isEmpty(text) && text.length == maxLength)
         }
 
         private fun applyMask(text: String): String {
@@ -193,5 +208,11 @@ class MaskEditText : AppCompatEditText {
         override fun afterTextChanged(s: Editable) {
 
         }
+    }
+
+    interface OnTextChangedListener {
+
+        fun onTextChanged(filled: Boolean)
+
     }
 }
