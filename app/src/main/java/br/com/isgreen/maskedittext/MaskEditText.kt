@@ -105,7 +105,7 @@ class MaskEditText : AppCompatEditText {
         }
     }
 
-    fun setOnFillTextListener(onTextChangedListener: OnTextChangedListener) {
+    fun setOnTextChangedListener(onTextChangedListener: OnTextChangedListener) {
         mOnTextChangedListener = onTextChangedListener
     }
 
