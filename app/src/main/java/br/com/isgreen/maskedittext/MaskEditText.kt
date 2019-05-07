@@ -64,9 +64,9 @@ class MaskEditText : AppCompatEditText {
         get() = mMaxLength
 
     private fun getNextMask(): String {
-        mMasks.forEach {
-            if (it.length > mCurrentMask.length) {
-                return it
+        mMasks.forEach { mask ->
+            if (text.toString().length >= mask.length) {
+                return mask
             }
         }
 
@@ -130,8 +130,9 @@ class MaskEditText : AppCompatEditText {
             val text = when {
                 count > before -> {
                     if (s.length > mCurrentMask.length) {
-                        val rawText = getTextWithoutMask()
                         mCurrentMask = getNextMask()
+
+                        val rawText = getTextWithoutMask()
 
                         changeMask(rawText)
                     } else {
