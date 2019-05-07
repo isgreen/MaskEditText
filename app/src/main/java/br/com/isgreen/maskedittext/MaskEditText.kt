@@ -1,10 +1,7 @@
 package br.com.isgreen.maskedittext
 
 import android.content.Context
-import android.text.Editable
-import android.text.InputFilter
-import android.text.TextUtils
-import android.text.TextWatcher
+import android.text.*
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
 
@@ -14,11 +11,8 @@ import androidx.appcompat.widget.AppCompatEditText
 
 class MaskEditText : AppCompatEditText {
 
-    private var mMaxLength = 0
     private var mCurrentMask: String = ""
     private val mMasks: MutableList<String> by lazy { mutableListOf<String>() }
-
-    private var mOnTextChangedListener: OnTextChangedListener? = null
 
     constructor(context: Context) : super(context) {
         init(context, null)
@@ -43,30 +37,22 @@ class MaskEditText : AppCompatEditText {
         mMasks.sortBy { it.length }
         mMasks.removeAll { it == "" }
 
-        mCurrentMask = getNextMask()
+        mCurrentMask = if (mMasks.isNotEmpty()) mMasks[0] else ""
 
         tpArray.recycle()
 
         if (mMasks.size > 0) {
-            setMaxLength(mMasks.last().length)
+            this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(mMasks.last().length))
         }
 
+        this.inputType = InputType.TYPE_CLASS_NUMBER
         this.addTextChangedListener(onTextChange)
-        this.isLongClickable = false
     }
-
-    private fun setMaxLength(length: Int) {
-        mMaxLength = length
-        this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(length))
-    }
-
-    val maxLength: Int
-        get() = mMaxLength
 
     private fun getNextMask(): String {
-        mMasks.forEach { mask ->
-            if (text.toString().length >= mask.length) {
-                return mask
+        mMasks.forEach {
+            if (it.length > mCurrentMask.length) {
+                return it
             }
         }
 
@@ -83,7 +69,7 @@ class MaskEditText : AppCompatEditText {
         this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(mMasks.last().length))
     }
 
-    fun getTextWithoutMask(): String {
+    fun getRawText(): String {
         if (mCurrentMask == "") {
             return text.toString()
         }
@@ -94,8 +80,22 @@ class MaskEditText : AppCompatEditText {
                 .replace(Regex("\\s+"), "")
     }
 
+    private fun getMask(textLength: Int): String {
+        mMasks.forEach { mask ->
+            val maskLength = mask.count { c -> c == '#' }
+
+            if (textLength == maskLength) {
+                return mask
+            }
+        }
+
+        return ""
+    }
+
     fun setText(text: String?) {
         text?.let {
+            mCurrentMask = getMask(it.length)
+
             for (i in 0 until mCurrentMask.length) {
                 if (it.length > i) {
                     val newText = super.getText().toString()
@@ -103,10 +103,6 @@ class MaskEditText : AppCompatEditText {
                 }
             }
         }
-    }
-
-    fun setOnTextChangedListener(onTextChangedListener: OnTextChangedListener) {
-        mOnTextChangedListener = onTextChangedListener
     }
 
     private val onTextChange = object : TextWatcher {
@@ -130,9 +126,9 @@ class MaskEditText : AppCompatEditText {
             val text = when {
                 count > before -> {
                     if (s.length > mCurrentMask.length) {
-                        mCurrentMask = getNextMask()
+                        val rawText = getRawText()
 
-                        val rawText = getTextWithoutMask()
+                        mCurrentMask = getNextMask()
 
                         changeMask(rawText)
                     } else {
@@ -142,8 +138,8 @@ class MaskEditText : AppCompatEditText {
                 count < before -> {
                     if (mMasks.size > 1
                             && mMasks.indexOf(mCurrentMask) > 0
-                            && s.length == getPreviousMask().length) {
-                        val rawText = getTextWithoutMask()
+                            && s.length < mCurrentMask.length) {
+                        val rawText = getRawText()
                         mCurrentMask = getPreviousMask()
 
                         changeMask(rawText)
@@ -158,9 +154,6 @@ class MaskEditText : AppCompatEditText {
 
             super@MaskEditText.setText(text)
             super@MaskEditText.setSelection(text.length)
-
-            mOnTextChangedListener?.onTextChanged(
-                    !TextUtils.isEmpty(text) && text.length == maxLength)
         }
 
         private fun applyMask(text: String): String {
@@ -209,11 +202,5 @@ class MaskEditText : AppCompatEditText {
         override fun afterTextChanged(s: Editable) {
 
         }
-    }
-
-    interface OnTextChangedListener {
-
-        fun onTextChanged(filled: Boolean)
-
     }
 }
