@@ -153,7 +153,8 @@ class MaskEditText : AppCompatEditText {
                 count < before -> {
                     if (mMasks.size > 1
                             && mMasks.indexOf(mCurrentMask) > 0
-                            && s.length < mCurrentMask.length) {
+                            && s.length == getPreviousMask().length) {
+//                            && s.length < mCurrentMask.length) {
                         val rawText = getRawText()
                         mCurrentMask = getPreviousMask()
 
