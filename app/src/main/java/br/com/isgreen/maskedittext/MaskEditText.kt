@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.*
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatEditText
+import java.util.regex.Pattern
 
 /**
  * Created by Éverdes Soares on 6/23/18.
@@ -89,7 +90,8 @@ class MaskEditText : AppCompatEditText {
 
         val symbols = mCurrentMask.replace("#", "")
 
-        return text.toString().replace(Regex("[$symbols]"), "")
+        return text.toString()
+                .replace(Regex("[${Pattern.quote(symbols)}]"), "")
                 .replace(Regex("\\s+"), "")
     }
 
