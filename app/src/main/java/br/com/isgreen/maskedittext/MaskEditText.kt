@@ -83,6 +83,8 @@ class MaskEditText : AppCompatEditText {
     fun getRawText(): String {
         if (mCurrentMask == "") {
             return text.toString()
+        } else if (TextUtils.isEmpty(text?.toString())){
+            return ""
         }
 
         val symbols = mCurrentMask.replace("#", "")
