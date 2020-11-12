@@ -13,10 +13,28 @@ import java.util.regex.Pattern
 class MaskEditText : AppCompatEditText {
 
     private var mMaxLength = 0
+    private var mIsMaskEnabled = true
     private var mCurrentMask: String = ""
     private val mMasks: MutableList<String> by lazy { mutableListOf<String>() }
 
     private var mOnTextChangedListener: OnTextChangedListener? = null
+
+    val maxLength: Int
+        get() = mMaxLength
+
+    var isMasksEnabled: Boolean
+        get() = mIsMaskEnabled
+        set(value) {
+            setText("")
+
+            if (value) {
+                setMaxLength(Int.MAX_VALUE)
+            } else {
+                setMaxLength(Int.MAX_VALUE)
+            }
+
+            mIsMaskEnabled = value
+        }
 
     constructor(context: Context) : super(context) {
         init(context, null)
@@ -58,9 +76,6 @@ class MaskEditText : AppCompatEditText {
         this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(length))
     }
 
-    val maxLength: Int
-        get() = mMaxLength
-
     private fun getNextMask(): String {
         mMasks.forEach {
             if (it.length > mCurrentMask.length) {
@@ -75,10 +90,21 @@ class MaskEditText : AppCompatEditText {
         return mMasks[mMasks.indexOf(mCurrentMask) - 1]
     }
 
-    fun addMask(mask: String) {
-        mMasks.add(mask)
+    private fun sortMasksAndChangeMaxLength() {
         mMasks.sortBy { it.length }
-        this.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(mMasks.last().length))
+        setMaxLength(mMasks.last().length)
+    }
+
+    private fun getMask(textLength: Int): String {
+        mMasks.forEach { mask ->
+            val maskLength = mask.count { c -> c == '#' }
+
+            if (textLength == maskLength) {
+                return mask
+            }
+        }
+
+        return ""
     }
 
     fun getRawText(): String {
@@ -95,29 +121,39 @@ class MaskEditText : AppCompatEditText {
                 .replace(Regex("\\s+"), "")
     }
 
-    private fun getMask(textLength: Int): String {
-        mMasks.forEach { mask ->
-            val maskLength = mask.count { c -> c == '#' }
-
-            if (textLength == maskLength) {
-                return mask
-            }
-        }
-
-        return ""
-    }
-
     fun setText(text: String?) {
         text?.let {
             mCurrentMask = getMask(it.length)
 
-            for (i in 0 until mCurrentMask.length) {
+            for (i in mCurrentMask.indices) {
                 if (it.length > i) {
                     val newText = super.getText().toString()
                     super.setText(String.format("%s%s", newText, text.subSequence(i, i + 1)))
                 }
             }
         }
+    }
+
+    fun addMask(mask: String) {
+        mMasks.add(mask)
+        sortMasksAndChangeMaxLength()
+    }
+
+    fun addMasks(mask: List<String>) {
+        mMasks.addAll(mask)
+        sortMasksAndChangeMaxLength()
+    }
+
+    fun setMasks(mask: List<String>) {
+        mMasks.clear()
+        mMasks.addAll(mask)
+        sortMasksAndChangeMaxLength()
+    }
+
+    fun clearMasks() {
+        mMasks.clear()
+        mCurrentMask = ""
+        setMaxLength(Int.MAX_VALUE)
     }
 
     fun setOnTextChangedListener(onTextChangedListener: OnTextChangedListener) {
@@ -138,7 +174,7 @@ class MaskEditText : AppCompatEditText {
                 return
             }
 
-            if (mCurrentMask == "") {
+            if (mCurrentMask == "" || !mIsMaskEnabled) {
                 return
             }
 
