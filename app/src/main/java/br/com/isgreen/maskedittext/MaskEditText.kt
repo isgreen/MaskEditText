@@ -252,10 +252,12 @@ class MaskEditText : AppCompatEditText {
             var newText = text
 
             for (i in 0..text.length) {
-                val caracter = mCurrentMask[i]
+                if (i <= mCurrentMask.length) {
+                    val caracter = mCurrentMask[i]
 
-                if (caracter != '#') {
-                    newText = newText.substring(0, i) + caracter + newText.substring(i, newText.length)
+                    if (caracter != '#') {
+                        newText = newText.substring(0, i) + caracter + newText.substring(i, newText.length)
+                    }
                 }
             }
 
