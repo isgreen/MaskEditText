@@ -99,7 +99,7 @@ class MaskEditText : AppCompatEditText {
         mMasks.forEach { mask ->
             val maskLength = mask.count { c -> c == '#' }
 
-            if (textLength == maskLength) {
+            if (textLength <= maskLength) {
                 return mask
             }
         }
@@ -125,10 +125,14 @@ class MaskEditText : AppCompatEditText {
         text?.let {
             mCurrentMask = getMask(it.length)
 
-            for (i in mCurrentMask.indices) {
-                if (it.length > i) {
-                    val newText = super.getText().toString()
-                    super.setText(String.format("%s%s", newText, text.subSequence(i, i + 1)))
+            if (mCurrentMask.isEmpty()) {
+                super.setText(text)
+            } else {
+                for (i in mCurrentMask.indices) {
+                    if (it.length > i) {
+                        val newText = super.getText().toString()
+                        super.setText(String.format("%s%s", newText, text.subSequence(i, i + 1)))
+                    }
                 }
             }
         }
