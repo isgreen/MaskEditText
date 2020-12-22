@@ -93,6 +93,10 @@ class MaskEditText : AppCompatEditText {
     private fun sortMasksAndChangeMaxLength() {
         mMasks.sortBy { it.length }
         setMaxLength(mMasks.last().length)
+
+        if (mCurrentMask.isEmpty() && mMasks.isNotEmpty()) {
+            mCurrentMask = mMasks[0]
+        }
     }
 
     private fun getMask(textLength: Int): String {
@@ -251,12 +255,12 @@ class MaskEditText : AppCompatEditText {
         private fun changeMask(text: String): String {
             var newText = text
 
-            for (i in 0..text.length) {
-                if (i <= mCurrentMask.length) {
-                    val caracter = mCurrentMask[i]
+            for (i in 0..text.lastIndex) {
+                if (mCurrentMask.isNotEmpty() && i <= mCurrentMask.lastIndex) {
+                    val character = mCurrentMask[i]
 
-                    if (caracter != '#') {
-                        newText = newText.substring(0, i) + caracter + newText.substring(i, newText.length)
+                    if (character != '#') {
+                        newText = newText.substring(0, i) + character + newText.substring(i, newText.length)
                     }
                 }
             }
