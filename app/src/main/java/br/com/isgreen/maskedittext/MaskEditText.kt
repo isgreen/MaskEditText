@@ -3,19 +3,19 @@ package br.com.isgreen.maskedittext
 import android.content.Context
 import android.text.*
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatEditText
+import com.google.android.material.textfield.TextInputEditText
 import java.util.regex.Pattern
 
 /**
  * Created by Éverdes Soares on 6/23/18.
  */
 
-class MaskEditText : AppCompatEditText {
+class MaskEditText : TextInputEditText {
 
     private var mMaxLength = 0
     private var mIsMaskEnabled = true
     private var mCurrentMask: String = ""
-    private val mMasks: MutableList<String> by lazy { mutableListOf<String>() }
+    private val mMasks: MutableList<String> by lazy { mutableListOf() }
 
     private var mOnTextChangedListener: OnTextChangedListener? = null
 
