@@ -40,16 +40,16 @@ class MaskEditText : TextInputEditText {
         init(context, null)
     }
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         init(context, attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        init(context, attrs, defStyleAttr)
     }
 
-    private fun init(context: Context, attrs: AttributeSet?) {
-        val tpArray = context.obtainStyledAttributes(attrs, R.styleable.MaskEditText)
+    private fun init(context: Context, attrs: AttributeSet?, defStyleAttr: Int = 0) {
+        val tpArray = context.obtainStyledAttributes(attrs, R.styleable.MaskEditText, defStyleAttr, 0)
         val mask = tpArray.getText(R.styleable.MaskEditText_mask) as? String
 
         if (mask != null) {
